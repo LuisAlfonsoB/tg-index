@@ -3,7 +3,7 @@ version: '3'
 services:
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:5666"
+    command: bash -c "python -m app"
     container_name: tgindex
     volumes:
       - .:/tgindex
