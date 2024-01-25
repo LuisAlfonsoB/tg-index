@@ -4,7 +4,7 @@
                 {% if found %}
                     {% if media %}
                         <h1 class="text-blue-500 text-center text-lg lg:text-xl xl:text-3xl w-full break-all">
-                            Download {{name}}
+                            Download {{name}} {{file_id}}
                         </h1>
 
                         <div class="mx-auto w-full p-2 md:w-3/4 lg:w-2/5 p-2">
@@ -15,7 +15,7 @@
                                     <p> Video {{name}} could not be played!</p>
                                 </div>
 
-                                <div id="my-video-wrapper">
+                                <!-- <div id="my-video-wrapper">
                                     <video id="my-video-player" class="mx-auto rounded" controls poster="{{thumbnail}}">
                                         <source src="{{download_url}}" type="video/mp4" />
                                     </video>
@@ -45,7 +45,13 @@
                                             }
                                         }
                                     );
-                                </script>
+                                </script> -->
+
+                                <media-player title="{{name}}" src="{{download_url}}">
+                                    <media-provider></media-provider>
+                                    <media-video-layout thumbnails="{{thumbnail}}"></media-video-layout>
+                                  </media-player>
+
                             {% elif media.audio %}
                                  <div id="audio-warning" class="mx-auto p-4 bg-gray-600 text-gray-300 rounded border text-center hidden break-words">
                                     <p> Audio {{name}} could not be played!</p>
