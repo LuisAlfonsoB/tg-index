@@ -109,7 +109,7 @@ class Download(BaseView):
         
         return_resp = web.Response(
         status=206 if req.http_range.start else 200,
-        body=body if req.http_range.start else "OK",
+        body=body,
         headers={
           "Access-Control-Allow-Origin": "*",
             "Content-Type": mime_type,
