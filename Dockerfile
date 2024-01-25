@@ -1,19 +1,17 @@
-# The first instruction is what image we want to base our container on
-# We Use an official Python runtime as a parent image
+# Use an official Python runtime as a parent image
 FROM python:3.8
 
-# The enviroment variable ensures that the python output is set straight
-# to the terminal with out buffering it first
+# Set environment variable to ensure Python output is sent straight to terminal without buffering
 ENV PYTHONUNBUFFERED 1
 
-# create root directory for our project in the container
-RUN mkdir /tgindex
-
-# Set the working directory to /music_service
+# Set working directory to /tgindex
 WORKDIR /tgindex
 
-# Copy the current directory contents into the container at /music_service
-ADD . /tgindex/
+# Copy only the requirements file, to take advantage of Docker cache
+COPY requirements.txt /tgindex/
 
 # Install any needed packages specified in requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code into the container at /tgindex
+COPY . /tgindex/

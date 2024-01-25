@@ -72,19 +72,25 @@ class Download(BaseView):
             )
 
         if not head:
-            response = web.StreamResponse(
-                status=206 if req.http_range.start else 200,
-                headers={
-                    "Access-Control-Allow-Origin": "*",
-                    "Content-Type": mime_type,
-                    "Content-Range": f"bytes {from_bytes}-{until_bytes}/{size}",
-                    "Content-Disposition": f'attachment; filename="{file_name}"',
-                    "Accept-Ranges": "bytes",
-                }
-            )
-            await response.prepare(req)
-            await self.client.download_stream(media, response, size, from_bytes, until_bytes)
+            # Use download method for streaming
+            body = self.client.download(media, size, from_bytes, until_bytes)
             log.info(f"Serving file in {message.id} (chat {chat_id}) ; Range: {from_bytes} - {until_bytes}")
-            return response
+        else:
+            body = None
 
-        return web.Response(status=206 if req.http_range.start else 200)
+        response = web.StreamResponse(
+            status=206 if req.http_range.start else 200,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": mime_type,
+                "Content-Range": f"bytes {from_bytes}-{until_bytes}/{size}",
+                "Content-Disposition": f'attachment; filename="{file_name}"',
+                "Accept-Ranges": "bytes",
+            }
+        )
+        await response.prepare(req)
+
+        if not head:
+            await response.write(body)
+
+        return response
