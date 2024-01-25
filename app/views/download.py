@@ -69,7 +69,7 @@ class Download(BaseView):
             # offset = req.http_range.start or 0
             # limit = req.http_range.stop or size
             offset = from_bytes or 0
-            limit = until_bytes or size            
+            limit = until_bytes or 512            
             if (limit > size) or (offset < 0) or (limit < offset):
                 raise ValueError("range not in acceptable format")
         except ValueError:
