@@ -7,7 +7,7 @@
                             Download {{name}} {{file_id}}
                         </h1>
 
-                        <div class="mx-auto w-full p-2 md:w-3/4 lg:w-2/5 p-2">
+                        <div class="mx-auto w-full p-2 md:w-3/4 lg:w-4/5 p-2">
                             {% if media.image %}
                                 <img class="mx-auto rounded" src="{{thumbnail}}" alt="{{name}}">
                             {% elif media.video %}
@@ -47,9 +47,11 @@
                                     );
                                 </script> -->
 
-                                <media-player title="{{name}}" src="{{download_url}}">
-                                    <media-provider></media-provider>
-                                    <media-video-layout thumbnails="{{thumbnail}}"></media-video-layout>
+                                <media-player title="{{name}}" >
+                                    <media-provider>
+                                        <source src="{{download_url}}" type="video/mp4" />
+                                  </media-provider>                                   
+                                   <media-video-layout thumbnails="{{thumbnail}}"></media-video-layout>
                                   </media-player>
 
                             {% elif media.audio %}
@@ -99,8 +101,9 @@
                         </div>
                         
                         <div class="text-center text-white">
-
-                            <a class="rounded p-3 bg-indigo-500 hover:bg-indigo-700 shadow-lg{% if block_downloads %} cursor-not-allowed disabled{% else %}" download="{{name}}{% endif %}" href="{{download_url}}">Download Now! ({{ human_size }})</a>
+                            <a class="rounded p-3 bg-red-500 hover:bg-red-700 shadow-lg"  href="../{{file_id--}}/view/">Previous</a>
+                            <a class="mx-2 rounded p-3 bg-indigo-500 hover:bg-indigo-700 shadow-lg{% if block_downloads %} cursor-not-allowed disabled{% else %}" download="{{name}}{% endif %}" href="{{download_url}}">Download Now! ({{ human_size }})</a>
+                            <a class="rounded p-3 bg-green-500 hover:bg-green-700 shadow-lg" href="../{{file_id++}}/view/" >Next</a>
 
                         </div>
                     {% else %}
