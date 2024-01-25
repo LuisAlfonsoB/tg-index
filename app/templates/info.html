@@ -101,9 +101,9 @@
                         </div>
                         
                         <div class="text-center text-white">
-                            <a class="rounded p-3 bg-red-500 hover:bg-red-700 shadow-lg"  href="../{{file_id--}}/view/">Previous</a>
+                            <a class="rounded p-3 bg-red-500 hover:bg-red-700 shadow-lg"  href="../{{file_id-1}}/view/">Previous</a>
                             <a class="mx-2 rounded p-3 bg-indigo-500 hover:bg-indigo-700 shadow-lg{% if block_downloads %} cursor-not-allowed disabled{% else %}" download="{{name}}{% endif %}" href="{{download_url}}">Download Now! ({{ human_size }})</a>
-                            <a class="rounded p-3 bg-green-500 hover:bg-green-700 shadow-lg" href="../{{file_id++}}/view/" >Next</a>
+                            <a class="rounded p-3 bg-green-500 hover:bg-green-700 shadow-lg" href="../{{file_id+1}}/view/" >Next</a>
 
                         </div>
                     {% else %}
