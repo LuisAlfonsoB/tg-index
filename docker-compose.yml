@@ -9,3 +9,5 @@ services:
       - .:/tgindex
     ports:
       - "5666:5666"
+    env_file:
+      - .env
