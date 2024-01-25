@@ -2,7 +2,7 @@ aiohttp
 aiohttp-jinja2
 telethon
 cryptg
-pillow
+Pillow==9.2.0
 aiohttp_session[secure]
 python-dotenv
 jinja2==3.0.3
