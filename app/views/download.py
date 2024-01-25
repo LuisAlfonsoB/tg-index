@@ -1,8 +1,6 @@
 import logging
-
 from aiohttp import web
 from telethon.tl.custom import Message
-
 from app.util import get_file_name
 from app.config import block_downloads
 from .base import BaseView
@@ -10,7 +8,7 @@ from .base import BaseView
 log = logging.getLogger(__name__)
 
 class Download(BaseView):
-    async def download_get(self, req: web.Request) -> web.Response:
+    async def download_get(self, req: web.Request) -> web.StreamResponse:
         return await self.handle_request(req)
 
     async def download_head(self, req: web.Request) -> web.Response:
@@ -18,12 +16,7 @@ class Download(BaseView):
 
     async def handle_request(
         self, req: web.Request, head: bool = False
-    ) -> web.Response:
-        async def stream_response(media, offset, limit):
-            with await media.download_media(offset=offset, limit=limit) as stream:
-                async for chunk in stream:
-                    yield chunk
-
+    ) -> web.StreamResponse:
         if block_downloads:
             return web.Response(status=403, text="403: Forbidden" if not head else None)
 
@@ -36,7 +29,7 @@ class Download(BaseView):
             message: Message = await self.client.get_messages(
                 entity=chat_id, ids=file_id
             )
-        except Exception as e:
+        except Exception:
             log.debug(f"Error in getting message {file_id} in {chat_id}", exc_info=True)
             message = None
 
@@ -55,48 +48,43 @@ class Download(BaseView):
         mime_type = message.file.mime_type
 
         try:
-            range_header = req.headers.get('Range', 0)
+            request = req
+            range_header = request.headers.get('Range', 0)
             if range_header:
                 range_data = range_header.replace('bytes=', '').split('-')
                 from_bytes = int(range_data[0])
-                until_bytes = (
-                    int(range_data[1]) if range_data[1] else size - 1
-                )
+                until_bytes = int(range_data[1]) if range_data[1] else size - 1
             else:
-                from_bytes = req.http_range.start or 0
-                until_bytes = req.http_range.stop or size - 1
+                from_bytes = request.http_range.start or 0
+                until_bytes = request.http_range.stop or size - 1
 
-            offset = from_bytes or 0
-            limit = until_bytes or size
+            req_length = until_bytes - from_bytes
 
-            if (limit > size) or (offset < 0) or (limit < offset):
-                raise ValueError("range not in acceptable format")
+            if (until_bytes > size) or (from_bytes < 0) or (until_bytes < from_bytes):
+                raise ValueError("Range not in acceptable format")
         except ValueError:
             return web.Response(
                 status=416,
                 text="416: Range Not Satisfiable",
-                headers={"Content-Range": f"bytes */{size}"}
+                headers={
+                    "Content-Range": f"bytes */{size}"
+                }
             )
 
         if not head:
-            return_resp = web.StreamResponse(
+            response = web.StreamResponse(
                 status=206 if req.http_range.start else 200,
                 headers={
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": mime_type,
-                    "Content-Range": f"bytes {offset}-{limit}/{size}",
+                    "Content-Range": f"bytes {from_bytes}-{until_bytes}/{size}",
                     "Content-Disposition": f'attachment; filename="{file_name}"',
                     "Accept-Ranges": "bytes",
                 }
             )
-            return_resp.enable_chunked_encoding()
-            try:
-                await return_resp.prepare(req)
-                async for chunk in stream_response(media, offset, limit):
-                    await return_resp.write(chunk)
-            except Exception as e:
-                log.error(f"Error during streaming: {e}")
-                return_resp.set_status(500)
-            finally:
-                await return_resp.write_eof()
-       
+            await response.prepare(req)
+            await self.client.download_stream(media, response, size, from_bytes, until_bytes)
+            log.info(f"Serving file in {message.id} (chat {chat_id}) ; Range: {from_bytes} - {until_bytes}")
+            return response
+
+        return web.Response(status=206 if req.http_range.start else 200)
