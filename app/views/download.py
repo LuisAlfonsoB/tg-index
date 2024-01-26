@@ -108,7 +108,7 @@ class Download(BaseView):
         # return r
         
         return_resp = web.Response(
-        status=206 if req.http_range.start else 200,
+        status=206,
         body=body,
         headers={
           "Access-Control-Allow-Origin": "*",
@@ -116,11 +116,11 @@ class Download(BaseView):
             "Content-Range": f"bytes {offset}-{limit}/{size}",
             "Content-Disposition": f'attachment; filename="{file_name}"',
             "Accept-Ranges": "bytes",
-            # "Content-Length": f"{limit-offset}"
+            "Content-Length": f"{limit-offset}"
            }
         )
 
-        if return_resp.status == 200:
-          return_resp.headers.add("Content-Length", str(size))
+        # if return_resp.status == 200:
+        #   return_resp.headers.add("Content-Length", str(size))
 
         return return_resp

@@ -4,6 +4,8 @@ import traceback
 import json
 import sys
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 try:
