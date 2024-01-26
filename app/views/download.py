@@ -69,7 +69,7 @@ class Download(BaseView):
             # offset = req.http_range.start or 0
             # limit = req.http_range.stop or size
             offset = from_bytes or 0
-            limit = until_bytes or size          
+            limit = until_bytes or size            
             if (limit > size) or (offset < 0) or (limit < offset):
                 raise ValueError("range not in acceptable format")
         except ValueError:
@@ -108,7 +108,7 @@ class Download(BaseView):
         # return r
         
         return_resp = web.Response(
-        status=206,
+        status=206 if req.http_range.start else 200,
         body=body,
         headers={
           "Access-Control-Allow-Origin": "*",
