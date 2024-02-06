@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container at /tgindex
 COPY . /tgindex/
 
-cmd ["python", "app"]
+CMD ["python", "app"]
